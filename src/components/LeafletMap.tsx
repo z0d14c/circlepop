@@ -23,10 +23,7 @@ function ResetButton({ onReset }: { onReset: () => void }) {
 
 function CircleMarker({ radiusKm, center, setCenter }: { radiusKm: number, center: LatLngExpression | null, setCenter: (center: LatLngExpression) => void }) {
   const map = useMapEvents({
-    click() {
-      map.locate()
-    },
-    locationfound(e) {
+    click(e) {
       setCenter(e.latlng)
       map.flyTo(e.latlng, map.getZoom())
     },
