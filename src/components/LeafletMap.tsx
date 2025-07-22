@@ -53,8 +53,8 @@ export default function LeafletMap() {
             attribution="&copy; OpenStreetMap contributors"
           />
           <CircleMarker radiusKm={radiusKm} center={center} setCenter={setCenter} />
+          <ResetButton onReset={() => setCenter(null)} />
         </MapContainer>
-        <ResetButton onReset={() => setCenter(null)} />
       </div>
       <div className="flex items-center gap-2">
         <input
