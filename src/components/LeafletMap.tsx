@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { MapContainer, TileLayer, Circle, useMap, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { LatLngExpression } from 'leaflet'
+import L from 'leaflet'
 
 function ResetButton({ onReset }: { onReset: () => void }) {
   const map = useMap()
@@ -21,11 +22,31 @@ function ResetButton({ onReset }: { onReset: () => void }) {
   )
 }
 
-function CircleMarker({ radiusKm, center, setCenter }: { radiusKm: number, center: LatLngExpression | null, setCenter: (center: LatLngExpression) => void }) {
+function CircleMarker({
+  radiusKm,
+  center,
+  setCenter,
+  setPopulation,
+}: {
+  radiusKm: number
+  center: LatLngExpression | null
+  setCenter: (center: LatLngExpression) => void
+  setPopulation: (p: number | null) => void
+}) {
   const map = useMapEvents({
     click(e) {
       setCenter(e.latlng)
-      map.flyTo(e.latlng, map.getZoom())
+      const circle = L.circle(e.latlng, { radius: radiusKm * 1000 })
+      map.fitBounds(circle.getBounds())
+
+      fetch(`/api/pop?lat=${e.latlng.lat}&lon=${e.latlng.lng}&r_km=${radiusKm}`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (typeof d.population === 'number') {
+            setPopulation(d.population)
+          }
+        })
+        .catch(() => setPopulation(null))
     },
   })
 
@@ -35,6 +56,7 @@ function CircleMarker({ radiusKm, center, setCenter }: { radiusKm: number, cente
 export default function LeafletMap() {
   const [radiusKm, setRadiusKm] = useState(10)
   const [center, setCenter] = useState<LatLngExpression | null>(null)
+  const [population, setPopulation] = useState<number | null>(null)
 
   return (
     <div className="flex flex-col items-center gap-4 p-4">
@@ -49,9 +71,14 @@ export default function LeafletMap() {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; OpenStreetMap contributors"
           />
-          <CircleMarker radiusKm={radiusKm} center={center} setCenter={setCenter} />
-          <ResetButton onReset={() => setCenter(null)} />
+          <CircleMarker radiusKm={radiusKm} center={center} setCenter={setCenter} setPopulation={setPopulation} />
+          <ResetButton onReset={() => { setCenter(null); setPopulation(null) }} />
         </MapContainer>
+        {population !== null && (
+          <div className="absolute top-2 left-2 z-[1000] bg-white/90 px-2 py-1 rounded">
+            Population in the circle: {population}
+          </div>
+        )}
       </div>
       <div className="flex items-center gap-2">
         <input
