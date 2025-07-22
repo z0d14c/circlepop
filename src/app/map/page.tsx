@@ -1,7 +1,5 @@
-import dynamic from 'next/dynamic'
-
-const LeafletMap = dynamic(() => import('circlepop/components/LeafletMap'), { ssr: false })
+import MapPageClient from './MapPageClient'
 
 export default function MapPage() {
-  return <LeafletMap />
+  return <MapPageClient />
 }
