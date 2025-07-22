@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MapContainer, TileLayer, Circle, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Circle, useMap, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { LatLngExpression } from 'leaflet'
 
@@ -21,9 +21,23 @@ function ResetButton({ onReset }: { onReset: () => void }) {
   )
 }
 
+function CircleMarker({ radiusKm, center, setCenter }: { radiusKm: number, center: LatLngExpression | null, setCenter: (center: LatLngExpression) => void }) {
+  const map = useMapEvents({
+    click() {
+      map.locate()
+    },
+    locationfound(e) {
+      setCenter(e.latlng)
+      map.flyTo(e.latlng, map.getZoom())
+    },
+  })
+
+  return center && <Circle center={center} radius={radiusKm * 1000} />
+}
+
 export default function MapPage() {
-  const [center, setCenter] = useState<LatLngExpression | null>(null)
   const [radiusKm, setRadiusKm] = useState(10)
+  const [center, setCenter] = useState<LatLngExpression | null>(null)
 
   return (
     <div className="flex flex-col items-center gap-4 p-4">
@@ -33,14 +47,12 @@ export default function MapPage() {
           zoom={2}
           className="h-full w-full"
           scrollWheelZoom
-          whenCreated={(map) => map.invalidateSize()}
-          onClick={(e) => setCenter(e.latlng)}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; OpenStreetMap contributors"
           />
-          {center && <Circle center={center} radius={radiusKm * 1000} />}
+          <CircleMarker radiusKm={radiusKm} center={center} setCenter={setCenter} />
         </MapContainer>
         <ResetButton onReset={() => setCenter(null)} />
       </div>
