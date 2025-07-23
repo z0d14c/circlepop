@@ -46,28 +46,30 @@ function CircleMarker({
       map.fitBounds(circle.getBounds())
       circle.remove()
 
+      const acceptableTypes = ["number", "string"]
+
       fetch(`/api/pop?lat=${e.latlng.lat}&lon=${e.latlng.lng}&r_km=${radiusKm}`)
         .then((r) => r.json())
         .then((d) => {
-          if (typeof d.population === "string") {
+          if (acceptableTypes.includes(typeof d.population)) {
             setPopulation(Number(d.population))
           } else {
             setPopulation(null)
           }
 
-          if (typeof d.busStops === "number") {
+          if (acceptableTypes.includes(typeof d.busStops)) {
             setBusStops(d.busStops)
           } else {
             setBusStops(null)
           }
 
-          if (typeof d.tramStops === "number") {
+          if (acceptableTypes.includes(typeof d.tramStops)) {
             setTramStops(d.tramStops)
           } else {
             setTramStops(null)
           }
 
-          if (typeof d.metroTrain === "number") {
+          if (acceptableTypes.includes(typeof d.metroTrain)) {
             setMetroTrain(d.metroTrain)
           } else {
             setMetroTrain(null)
