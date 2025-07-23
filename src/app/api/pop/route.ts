@@ -5,7 +5,9 @@ export async function GET(req: NextRequest) {
   const lat  = Number(req.nextUrl.searchParams.get('lat'))
   const lon  = Number(req.nextUrl.searchParams.get('lon'))
   const r_km = Number(req.nextUrl.searchParams.get('r_km'))           // kilometres
-  const r_m  = r_km * 1_000                                           // metres
+  const r_m  = r_km * 1_000        
+  
+  console.log("testlogs1", { databaseUrl: typeof process.env.DATABASE_URL, databaseUrlLength: process.env.DATABASE_URL?.length })// metres
 
   if (!process.env.DATABASE_URL) {
     return NextResponse.json({
@@ -54,6 +56,8 @@ export async function GET(req: NextRequest) {
     tram: number
     metro_train: number
   }[]
+
+  console.log("testlogs1", { rows })
 
   if (rows.length === 0) {
     return NextResponse.json({
