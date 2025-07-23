@@ -27,11 +27,17 @@ function CircleMarker({
   center,
   setCenter,
   setPopulation,
+  setBusStops,
+  setTramStops,
+  setMetroTrain,
 }: {
   radiusKm: number
   center: LatLngExpression | null
   setCenter: (center: LatLngExpression) => void
   setPopulation: (p: number | null) => void
+  setBusStops: (c: number | null) => void
+  setTramStops: (c: number | null) => void
+  setMetroTrain: (c: number | null) => void
 }) {
   const map = useMapEvents({
     click(e) {
@@ -48,8 +54,31 @@ function CircleMarker({
           } else {
             setPopulation(null)
           }
+
+          if (typeof d.busStops === "number") {
+            setBusStops(d.busStops)
+          } else {
+            setBusStops(null)
+          }
+
+          if (typeof d.tramStops === "number") {
+            setTramStops(d.tramStops)
+          } else {
+            setTramStops(null)
+          }
+
+          if (typeof d.metroTrain === "number") {
+            setMetroTrain(d.metroTrain)
+          } else {
+            setMetroTrain(null)
+          }
         })
-        .catch(() => setPopulation(null))
+        .catch(() => {
+          setPopulation(null)
+          setBusStops(null)
+          setTramStops(null)
+          setMetroTrain(null)
+        })
     },
   })
 
@@ -60,6 +89,9 @@ export default function LeafletMap() {
   const [radiusKm, setRadiusKm] = useState(10)
   const [center, setCenter] = useState<LatLngExpression | null>(null)
   const [population, setPopulation] = useState<number | null>(null)
+  const [busStops, setBusStops] = useState<number | null>(null)
+  const [tramStops, setTramStops] = useState<number | null>(null)
+  const [metroTrain, setMetroTrain] = useState<number | null>(null)
 
   return (
     <div className="flex flex-col items-center gap-4 p-4">
@@ -74,12 +106,31 @@ export default function LeafletMap() {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; OpenStreetMap contributors"
           />
-          <CircleMarker radiusKm={radiusKm} center={center} setCenter={setCenter} setPopulation={setPopulation} />
-          <ResetButton onReset={() => { setCenter(null); setPopulation(null) }} />
+          <CircleMarker
+            radiusKm={radiusKm}
+            center={center}
+            setCenter={setCenter}
+            setPopulation={setPopulation}
+            setBusStops={setBusStops}
+            setTramStops={setTramStops}
+            setMetroTrain={setMetroTrain}
+          />
+          <ResetButton
+            onReset={() => {
+              setCenter(null)
+              setPopulation(null)
+              setBusStops(null)
+              setTramStops(null)
+              setMetroTrain(null)
+            }}
+          />
         </MapContainer>
         {population !== null && (
-          <div className="absolute bottom-12 left-2 z-[1000] bg-foreground/90 text-background px-2 py-1 rounded shadow">
-            Population in the circle: {population}
+          <div className="absolute bottom-12 left-2 z-[1000] bg-foreground/90 text-background px-2 py-1 rounded shadow flex flex-col space-y-1">
+            <span>👥 Population: {population}</span>
+            {busStops !== null && <span>🚌 Bus stops: {busStops}</span>}
+            {tramStops !== null && <span>🚊 Tram stops: {tramStops}</span>}
+            {metroTrain !== null && <span>🚆 Metro/Train: {metroTrain}</span>}
           </div>
         )}
       </div>
