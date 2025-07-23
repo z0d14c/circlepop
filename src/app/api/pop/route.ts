@@ -1,22 +1,24 @@
-// src/app/api/pop/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-// import { sql } from '@vercel/postgres'   // Neon or Vercel Postgres client
+import { neon } from '@neondatabase/serverless';
+import { NextRequest, NextResponse } from 'next/server';
 
-// just want to send a test response
+const sql = neon(process.env.DATABASE_URL!);
+
 export async function GET(req: NextRequest) {
-  const lat = Number(req.nextUrl.searchParams.get('lat'))
-  const lon = Number(req.nextUrl.searchParams.get('lon'))
-  const rKm = Number(req.nextUrl.searchParams.get('r_km'))
+  const lat = Number(req.nextUrl.searchParams.get('lat'));
+  const lon = Number(req.nextUrl.searchParams.get('lon'));
+  const r_km = Number(req.nextUrl.searchParams.get('r_km'));
 
-  if (
-    Number.isNaN(lat) ||
-    Number.isNaN(lon) ||
-    Number.isNaN(rKm)
-  ) {
-    return NextResponse.json({ error: 'invalid params' }, { status: 400 })
-  }
+  const items = await sql`
+    SELECT COALESCE(SUM(pop),0)::bigint AS pop
+    FROM   ghs_pop_pts_de
+    WHERE  ST_DWithin(
+             geom::geography,
+             ST_SetSRID(ST_Point(${lon},${lat}),4326)::geography,
+             ${r_km * 1000}
+           );
+  `;
 
-  // TODO: replace this with real population calculation
-  return NextResponse.json({ population: 1000 })
+  const population = items?.[0]?.pop ?? 0
+
+  return NextResponse.json({ population });
 }
-

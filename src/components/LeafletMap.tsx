@@ -43,8 +43,10 @@ function CircleMarker({
       fetch(`/api/pop?lat=${e.latlng.lat}&lon=${e.latlng.lng}&r_km=${radiusKm}`)
         .then((r) => r.json())
         .then((d) => {
-          if (typeof d.population === 'number') {
-            setPopulation(d.population)
+          if (typeof d.population === "string") {
+            setPopulation(Number(d.population))
+          } else {
+            setPopulation(null)
           }
         })
         .catch(() => setPopulation(null))
