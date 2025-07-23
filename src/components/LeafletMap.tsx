@@ -30,6 +30,7 @@ function CircleMarker({
   setBusStops,
   setTramStops,
   setMetroTrain,
+  setLoading,
 }: {
   radiusKm: number
   center: LatLngExpression | null
@@ -38,9 +39,11 @@ function CircleMarker({
   setBusStops: (c: number | null) => void
   setTramStops: (c: number | null) => void
   setMetroTrain: (c: number | null) => void
+  setLoading: (l: boolean) => void
 }) {
   const map = useMapEvents({
     click(e) {
+      setLoading(true)
       setCenter(e.latlng)
       const circle = L.circle(e.latlng, { radius: radiusKm * 1000 }).addTo(map)
       map.fitBounds(circle.getBounds())
@@ -74,12 +77,14 @@ function CircleMarker({
           } else {
             setMetroTrain(null)
           }
+          setLoading(false)
         })
         .catch(() => {
           setPopulation(null)
           setBusStops(null)
           setTramStops(null)
           setMetroTrain(null)
+          setLoading(false)
         })
     },
   })
@@ -94,6 +99,7 @@ export default function LeafletMap() {
   const [busStops, setBusStops] = useState<number | null>(null)
   const [tramStops, setTramStops] = useState<number | null>(null)
   const [metroTrain, setMetroTrain] = useState<number | null>(null)
+  const [loading, setLoading] = useState(false)
 
   return (
     <div className="flex flex-col items-center gap-4 p-4">
@@ -116,6 +122,7 @@ export default function LeafletMap() {
             setBusStops={setBusStops}
             setTramStops={setTramStops}
             setMetroTrain={setMetroTrain}
+            setLoading={setLoading}
           />
           <ResetButton
             onReset={() => {
@@ -127,6 +134,11 @@ export default function LeafletMap() {
             }}
           />
         </MapContainer>
+        {loading && (
+          <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-background/70">
+            <div className="w-8 h-8 border-4 border-foreground border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
         {population !== null && (
           <div className="absolute bottom-12 left-2 z-[1000] bg-foreground/90 text-background px-2 py-1 rounded shadow flex flex-col space-y-1">
             <span>👥 Population: {population}</span>
