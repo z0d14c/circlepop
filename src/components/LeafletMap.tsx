@@ -36,8 +36,9 @@ function CircleMarker({
   const map = useMapEvents({
     click(e) {
       setCenter(e.latlng)
-      const circle = L.circle(e.latlng, { radius: radiusKm * 1000 })
+      const circle = L.circle(e.latlng, { radius: radiusKm * 1000 }).addTo(map)
       map.fitBounds(circle.getBounds())
+      circle.remove()
 
       fetch(`/api/pop?lat=${e.latlng.lat}&lon=${e.latlng.lng}&r_km=${radiusKm}`)
         .then((r) => r.json())
