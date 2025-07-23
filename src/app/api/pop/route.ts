@@ -1,13 +1,22 @@
 import { neon } from '@neondatabase/serverless';
 import { NextRequest, NextResponse } from 'next/server';
 
-const sql = neon(process.env.DATABASE_URL!);
-
 export async function GET(req: NextRequest) {
-  const lat   = Number(req.nextUrl.searchParams.get('lat'))
-  const lon   = Number(req.nextUrl.searchParams.get('lon'))
-  const r_km  = Number(req.nextUrl.searchParams.get('r_km'))           // kilometres
-  const r_m   = r_km * 1_000                                           // metres
+  const lat  = Number(req.nextUrl.searchParams.get('lat'))
+  const lon  = Number(req.nextUrl.searchParams.get('lon'))
+  const r_km = Number(req.nextUrl.searchParams.get('r_km'))           // kilometres
+  const r_m  = r_km * 1_000                                           // metres
+
+  if (!process.env.DATABASE_URL) {
+    return NextResponse.json({
+      population : 0,
+      busStops   : 0,
+      tramStops  : 0,
+      metroTrain : 0,
+    })
+  }
+
+  const sql = neon(process.env.DATABASE_URL)
 
   /* one round‑trip: population + stop counts */
   const rows: {
