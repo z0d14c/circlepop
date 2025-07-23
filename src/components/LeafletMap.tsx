@@ -146,6 +146,18 @@ export default function LeafletMap() {
         />
         <span>{radiusKm} km</span>
       </div>
+      <div className="flex flex-col items-center gap-2">
+        {/* text explaining the app */}
+        <p>
+          This app shows the population and number of bus, tram, and metro/train stops within a circle of a given radius.
+        </p>
+        <p>
+          Select a radius and then click on the map to try it out.
+        </p>
+        <p className="italic">
+          Beta (Germany-only)
+        </p>
+      </div>
     </div>
   )
 }
