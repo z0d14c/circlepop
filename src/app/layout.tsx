@@ -29,7 +29,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <PopLoader />
-        {children}
+        <div className="content">{children}</div>
       </body>
     </html>
   );

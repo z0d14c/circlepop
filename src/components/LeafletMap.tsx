@@ -15,7 +15,7 @@ function ResetButton({ onReset }: { onReset: () => void }) {
   return (
     <button
       onClick={handleClick}
-      className="absolute top-2 right-2 z-[1000] bg-foreground/90 text-background font-medium px-2 py-1 rounded shadow hover:bg-foreground"
+      className="absolute bottom-12 right-2 z-[1000] bg-foreground/90 text-background font-medium px-2 py-1 rounded shadow hover:bg-foreground"
     >
       Reset map
     </button>
@@ -78,7 +78,7 @@ export default function LeafletMap() {
           <ResetButton onReset={() => { setCenter(null); setPopulation(null) }} />
         </MapContainer>
         {population !== null && (
-          <div className="absolute top-2 left-2 z-[1000] bg-foreground/90 text-background px-2 py-1 rounded shadow">
+          <div className="absolute bottom-12 left-2 z-[1000] bg-foreground/90 text-background px-2 py-1 rounded shadow">
             Population in the circle: {population}
           </div>
         )}
